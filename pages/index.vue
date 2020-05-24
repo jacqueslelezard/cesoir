@@ -22,32 +22,45 @@
       </div>
     </div>
     <div class="idea" v-if="movieIdea.id">
-      <div
-        class="card card-max"
-        @click="toggleFavorite(movieIdea.id)"
-        :class="{ fav: favoriteMovies.includes(movieIdea.id.toString()) }"
-      >
+      <div class="card card-max">
         <div class="card-image">
-          <figure
-            class="image is-4by3"
-            :style="{
-              backgroundImage:
-                'url(https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
-                movieIdea.poster_path +
-                ')'
-            }"
-          ></figure>
-        </div>
-        <div class="card-content">
-          <div class="media">
-            <div class="media-content">
-              <p class="title is-4">{{ movieIdea.title }}</p>
-              <p class="subtitle is-6">{{ movieIdea.release_date }}</p>
-            </div>
+          <div class="card-header">
+            <img
+              class="favButton"
+              :class="{
+                disabledFavButton: !favoriteMovies.includes(
+                  movieIdea.id.toString()
+                )
+              }"
+              @click="toggleFavorite(movieIdea.id)"
+              src="./../static/star.svg"
+            />
+            <p class="title is-3">
+              {{ movieIdea.title }} ({{ movieIdea.release_date }})
+            </p>
           </div>
-
-          <div class="content">
-            {{ movieIdea.overview }}
+          <div class="card-main">
+            <div
+              class="blurred-bg"
+              :style="{
+                backgroundImage:
+                  'url(https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                  movieIdea.poster_path +
+                  ')'
+              }"
+            ></div>
+            <figure
+              class="image is-5by4"
+              :style="{
+                backgroundImage:
+                  'url(https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                  movieIdea.poster_path +
+                  ')'
+              }"
+            ></figure>
+            <div class="content">
+              {{ movieIdea.overview }}
+            </div>
           </div>
         </div>
       </div>
@@ -87,7 +100,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import Logo from '~/components/Logo.vue'
-// import axios from '@nuxtjs/axios'
 import axios from 'axios'
 
 const api_key = '5a8f8a3c5c49b7b09151edb7e144ad4b'
@@ -106,7 +118,6 @@ export default Vue.extend({
   },
   mounted() {
     const existingFav = localStorage.getItem('favoriteMovies')
-    console.log('existingFav', existingFav)
     this.favoriteMovies = existingFav ? existingFav.split(',') : []
   },
   computed: {},
@@ -114,11 +125,9 @@ export default Vue.extend({
     async updateSearch() {
       this.movieIdea = {}
       if (this.search && this.search.length > 2) {
-        console.log('searching...')
         this.searchedMovies = await this.searchForMovies(this.search)
       }
       return []
-      console.log('not long enought to start searching...')
     },
     async searchForMovies(query: string): Promise<any[]> {
       let searchedMovies = [] as any[]
@@ -132,9 +141,7 @@ export default Vue.extend({
         )
         .then((response: any) => {
           searchedMovies = response.data.results
-          console.log('response', searchedMovies)
         })
-      // console.log('response', response)
       return searchedMovies
     },
     toggleFavorite(id: string) {
@@ -149,7 +156,6 @@ export default Vue.extend({
     },
     async findMovie() {
       this.search = ''
-      console.log('searching for a movie')
       const randomId = this.getRandomInt(this.favoriteMovies.length)
       const movie = await axios
         .get(
@@ -176,6 +182,9 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+html {
+  overflow: hidden;
+}
 $primary: red;
 .container {
   margin: 0 auto;
@@ -237,6 +246,7 @@ $primary: red;
   width: 200px;
   margin: 1%;
   height: auto;
+  max-height: 450px;
   overflow: hidden;
 }
 
@@ -247,10 +257,63 @@ $primary: red;
   overflow: auto;
   scrollbar-color: #eee #fff;
   scrollbar-width: thin;
+  max-height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+
+  .blurred-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    filter: blur(10px);
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+
+  .card-image {
+    flex-direction: column;
+    display: flex;
+
+    .card-header {
+      padding: 10px;
+      margin: 0;
+      .title {
+        margin: 0;
+        padding: 0;
+        margin-left: 10px;
+      }
+      .favButton {
+        width: 40px;
+        cursor: pointer;
+      }
+      .disabledFavButton {
+        filter: grayscale(100%);
+      }
+    }
+
+    .card-main {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+
+      figure,
+      .content {
+        width: 80%;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      .content {
+        width: 100%;
+        padding: 3%;
+      }
+    }
+  }
 }
 
 .fav {
-  background-color: rgba(250, 50, 50, 0.5);
+  background-color: rgba(250, 100, 50, 0.5);
 }
 
 figure {
