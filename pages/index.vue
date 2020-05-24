@@ -9,9 +9,19 @@
       <div class="actions">
         <button
           class="button is-primary is-rounded find-button"
-          @click="findMovie()"
+          :class="{ 'is-outlined': showFavorites }"
+          @click="selectRandomMovie()"
         >
           Une idée, vite !
+        </button>
+        <button
+          class="button is-primary is-rounded find-button"
+          :class="{
+            'is-outlined': !showFavorites && showFavorites !== undefined
+          }"
+          @click="listMovies()"
+        >
+          Tooous mes films
         </button>
         <input
           class="input is-rounded search-box"
@@ -65,7 +75,7 @@
         </div>
       </div>
     </div>
-    <div class="gallery" v-if="search.length">
+    <div class="gallery" v-if="search.length && !showFavorites">
       <div
         class="card"
         v-for="movie in searchedMovies"
@@ -87,7 +97,58 @@
         <div class="card-content">
           <div class="media">
             <div class="media-content">
-              <p class="title is-4">{{ movie.title }}</p>
+              <p class="title is-4">
+                <img
+                  class="favButtonMin"
+                  :class="{
+                    disabledFavButton: !favoriteMovies.includes(
+                      movie.id.toString()
+                    )
+                  }"
+                  @click="toggleFavorite(movieIdea.id)"
+                  src="./../static/star.svg"
+                />{{ movie.title }}
+              </p>
+              <p class="subtitle is-6">{{ movie.release_date }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="gallery" v-if="favoriteMoviesList.length && showFavorites">
+      <div
+        class="card"
+        v-for="movie in favoriteMoviesList"
+        v-bind:key="movie.id"
+        @click="toggleFavorite(movie.id)"
+        :class="{ fav: favoriteMovies.includes(movie.id.toString()) }"
+      >
+        <div class="card-image">
+          <figure
+            class="image is-3by4"
+            :style="{
+              backgroundImage:
+                'url(https://image.tmdb.org/t/p/w300_and_h450_bestv2/' +
+                movie.poster_path +
+                ')'
+            }"
+          ></figure>
+        </div>
+        <div class="card-content">
+          <div class="media">
+            <div class="media-content">
+              <p class="title is-4">
+                <img
+                  class="favButtonMin"
+                  :class="{
+                    disabledFavButton: !favoriteMovies.includes(
+                      movie.id.toString()
+                    )
+                  }"
+                  @click="toggleFavorite(movieIdea.id)"
+                  src="./../static/star.svg"
+                />{{ movie.title }}
+              </p>
               <p class="subtitle is-6">{{ movie.release_date }}</p>
             </div>
           </div>
@@ -113,7 +174,9 @@ export default Vue.extend({
       search: '' as string,
       movieIdea: {} as any,
       searchedMovies: [] as string[],
-      favoriteMovies: [] as string[]
+      favoriteMovies: [] as string[],
+      favoriteMoviesList: [] as any[],
+      showFavorites: undefined as boolean | undefined
     }
   },
   mounted() {
@@ -131,6 +194,7 @@ export default Vue.extend({
     },
     async searchForMovies(query: string): Promise<any[]> {
       let searchedMovies = [] as any[]
+      this.showFavorites = false
       const movies = await axios
         .get(
           ' https://api.themoviedb.org/3/search/movie?api_key=' +
@@ -154,20 +218,37 @@ export default Vue.extend({
       }
       localStorage.setItem('favoriteMovies', this.favoriteMovies.toString())
     },
-    async findMovie() {
+    async selectRandomMovie() {
+      this.showFavorites = false
       this.search = ''
       const randomId = this.getRandomInt(this.favoriteMovies.length)
+      this.movieIdea = await this.findMovie(this.favoriteMovies[randomId])
+    },
+    async findMovie(movieId: string) {
       const movie = await axios
         .get(
           ' https://api.themoviedb.org/3/movie/' +
-            this.favoriteMovies[randomId] +
+            movieId +
             '?api_key=' +
             api_key +
             '&language=fr'
         )
         .then((response: any) => {
-          this.movieIdea = response.data
+          return response.data
         })
+      return movie
+    },
+    async listMovies() {
+      this.showFavorites = true
+      this.search = ''
+      this.movieIdea = {}
+      this.favoriteMoviesList = await Promise.all(
+        this.favoriteMovies.map(
+          async (movieId): Promise<number> => {
+            return await this.findMovie(movieId)
+          }
+        )
+      )
     },
     getRandomInt(max: number) {
       return Math.floor(Math.random() * Math.floor(max))
@@ -238,8 +319,20 @@ $primary: red;
   justify-content: center;
   height: 100vh;
   overflow: auto;
-  scrollbar-color: #eee #ff;
+  scrollbar-color: #eee #fff;
   scrollbar-width: thin;
+
+  .title {
+    display: block;
+  }
+
+  .favButtonMin {
+    height: 20px;
+    width: 20px;
+  }
+  .disabledFavButton {
+    filter: grayscale(100%);
+  }
 }
 
 .card {
@@ -248,6 +341,8 @@ $primary: red;
   height: auto;
   max-height: 450px;
   overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s ease-in;
 }
 
 .card-max {
@@ -314,7 +409,7 @@ $primary: red;
 }
 
 .fav {
-  background-color: rgba(250, 100, 50, 0.5);
+  background-color: rgba(250, 100, 50, 0.3);
 }
 
 figure {
