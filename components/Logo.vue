@@ -5,6 +5,7 @@
 .logo {
   animation: 2s appear ease;
   width: 100px;
+  height: 100px;
 }
 
 @keyframes appear {
