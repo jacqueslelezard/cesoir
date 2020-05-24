@@ -1,8 +1,10 @@
 <template>
   <div class="container">
     <div class="header">
-      <h1 class="title"><logo /> <span>cesoir</span></h1>
-
+      <h1 class="title">
+        <logo :toggle-spin="spin" />
+        <span>cesoir</span>
+      </h1>
       <h2 class="subtitle">
         Jamais à court d'idée
       </h2>
@@ -75,99 +77,35 @@
         </div>
       </div>
     </div>
-    <div class="gallery" v-if="search.length && !showFavorites">
-      <div
-        class="card"
-        v-for="movie in searchedMovies"
-        v-bind:key="movie.id"
-        @click="toggleFavorite(movie.id)"
-        :class="{ fav: favoriteMovies.includes(movie.id.toString()) }"
-      >
-        <div class="card-image">
-          <figure
-            class="image is-3by4"
-            :style="{
-              backgroundImage:
-                'url(https://image.tmdb.org/t/p/w300_and_h450_bestv2/' +
-                movie.poster_path +
-                ')'
-            }"
-          ></figure>
-        </div>
-        <div class="card-content">
-          <div class="media">
-            <div class="media-content">
-              <p class="title is-4">
-                <img
-                  class="favButtonMin"
-                  :class="{
-                    disabledFavButton: !favoriteMovies.includes(
-                      movie.id.toString()
-                    )
-                  }"
-                  @click="toggleFavorite(movieIdea.id)"
-                  src="./../static/star.svg"
-                />{{ movie.title }}
-              </p>
-              <p class="subtitle is-6">{{ movie.release_date }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="gallery" v-if="favoriteMoviesList.length && showFavorites">
-      <div
-        class="card"
-        v-for="movie in favoriteMoviesList"
-        v-bind:key="movie.id"
-        @click="toggleFavorite(movie.id)"
-        :class="{ fav: favoriteMovies.includes(movie.id.toString()) }"
-      >
-        <div class="card-image">
-          <figure
-            class="image is-3by4"
-            :style="{
-              backgroundImage:
-                'url(https://image.tmdb.org/t/p/w300_and_h450_bestv2/' +
-                movie.poster_path +
-                ')'
-            }"
-          ></figure>
-        </div>
-        <div class="card-content">
-          <div class="media">
-            <div class="media-content">
-              <p class="title is-4">
-                <img
-                  class="favButtonMin"
-                  :class="{
-                    disabledFavButton: !favoriteMovies.includes(
-                      movie.id.toString()
-                    )
-                  }"
-                  @click="toggleFavorite(movieIdea.id)"
-                  src="./../static/star.svg"
-                />{{ movie.title }}
-              </p>
-              <p class="subtitle is-6">{{ movie.release_date }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <gallery
+      v-if="search.length && !showFavorites"
+      :displayed-movies="searchedMovies"
+      :favorite-movies="favoriteMovies"
+      @toggle-favorite="toggleFavorite($event)"
+    >
+    </gallery>
+    <gallery
+      v-if="favoriteMoviesList.length && showFavorites"
+      :displayed-movies="favoriteMoviesList"
+      :favorite-movies="favoriteMovies"
+      @toggle-favorite="toggleFavorite($event)"
+    >
+    </gallery>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import Logo from '~/components/Logo.vue'
+import Logo from './../components/Logo.vue'
+import Gallery from './../components/Gallery.vue'
 import axios from 'axios'
 
 const api_key = '5a8f8a3c5c49b7b09151edb7e144ad4b'
 
 export default Vue.extend({
   components: {
-    Logo
+    Logo,
+    Gallery
   },
   data: function() {
     return {
@@ -176,7 +114,8 @@ export default Vue.extend({
       searchedMovies: [] as string[],
       favoriteMovies: [] as string[],
       favoriteMoviesList: [] as any[],
-      showFavorites: undefined as boolean | undefined
+      showFavorites: undefined as boolean | undefined,
+      spin: false
     }
   },
   mounted() {
@@ -220,6 +159,7 @@ export default Vue.extend({
     },
     async selectRandomMovie() {
       this.showFavorites = false
+      this.spin = !this.spin
       this.search = ''
       const randomId = this.getRandomInt(this.favoriteMovies.length)
       this.movieIdea = await this.findMovie(this.favoriteMovies[randomId])
@@ -266,10 +206,11 @@ export default Vue.extend({
 html {
   overflow: hidden;
 }
-$primary: red;
+
 .container {
   margin: 0 auto;
   min-height: 100vh;
+  max-width: 95%;
   display: flex;
   justify-content: center;
   align-items: center;
