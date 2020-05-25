@@ -1,11 +1,11 @@
 import {
   mount
 } from '@vue/test-utils'
-import Logo from '@/components/Logo.vue'
+import Gallery from '@/components/Gallery.vue'
 
-describe('Logo', () => {
+describe('Gallery', () => {
   test('is a Vue instance', () => {
-    const wrapper = mount(Logo)
+    const wrapper = mount(Gallery)
     expect(wrapper.isVueInstance()).toBeTruthy()
   })
 })

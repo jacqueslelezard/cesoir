@@ -10,6 +10,7 @@
       </h2>
       <div class="actions">
         <button
+          v-if="favoriteMovies.length > 0"
           class="button is-primary is-rounded find-button"
           :class="{ 'is-outlined': showFavorites }"
           @click="selectRandomMovie()"
@@ -17,6 +18,7 @@
           Une idée, vite !
         </button>
         <button
+          v-if="favoriteMovies.length > 0"
           class="button is-primary is-rounded find-button"
           :class="{
             'is-outlined': !showFavorites && showFavorites !== undefined
@@ -33,50 +35,13 @@
         />
       </div>
     </div>
-    <div class="idea" v-if="movieIdea.id">
-      <div class="card card-max">
-        <div class="card-image">
-          <div class="card-header">
-            <img
-              class="favButton"
-              :class="{
-                disabledFavButton: !favoriteMovies.includes(
-                  movieIdea.id.toString()
-                )
-              }"
-              @click="toggleFavorite(movieIdea.id)"
-              src="./../static/star.svg"
-            />
-            <p class="title is-3">
-              {{ movieIdea.title }} ({{ movieIdea.release_date }})
-            </p>
-          </div>
-          <div class="card-main">
-            <div
-              class="blurred-bg"
-              :style="{
-                backgroundImage:
-                  'url(https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
-                  movieIdea.poster_path +
-                  ')'
-              }"
-            ></div>
-            <figure
-              class="image is-5by4"
-              :style="{
-                backgroundImage:
-                  'url(https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
-                  movieIdea.poster_path +
-                  ')'
-              }"
-            ></figure>
-            <div class="content">
-              {{ movieIdea.overview }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <idea
+      v-if="movieIdea.id"
+      :movie-idea="movieIdea"
+      :favorite-movies="favoriteMovies"
+      @toggle-favorite="toggleFavorite($event)"
+    >
+    </idea>
     <gallery
       v-if="search.length && !showFavorites"
       :displayed-movies="searchedMovies"
@@ -98,14 +63,17 @@
 import Vue from 'vue'
 import Logo from './../components/Logo.vue'
 import Gallery from './../components/Gallery.vue'
+import Idea from './../components/Idea.vue'
 import axios from 'axios'
 
 const api_key = '5a8f8a3c5c49b7b09151edb7e144ad4b'
+const tmdb_base_url = 'https://api.themoviedb.org/3/'
 
 export default Vue.extend({
   components: {
     Logo,
-    Gallery
+    Gallery,
+    Idea
   },
   data: function() {
     return {
@@ -136,7 +104,8 @@ export default Vue.extend({
       this.showFavorites = false
       const movies = await axios
         .get(
-          ' https://api.themoviedb.org/3/search/movie?api_key=' +
+          tmdb_base_url +
+            'search/movie?api_key=' +
             api_key +
             '&language=fr&query=' +
             query +
@@ -167,7 +136,8 @@ export default Vue.extend({
     async findMovie(movieId: string) {
       const movie = await axios
         .get(
-          ' https://api.themoviedb.org/3/movie/' +
+          tmdb_base_url +
+            'movie/' +
             movieId +
             '?api_key=' +
             api_key +
@@ -245,11 +215,12 @@ html {
 .search-box,
 .find-button {
   max-width: 80%;
-  margin: 2%;
+  margin: 1%;
 }
 
 .header {
   width: 50%;
+  transition: 0.3s ease;
 }
 
 .gallery,
@@ -262,6 +233,7 @@ html {
   overflow: auto;
   scrollbar-color: #eee #fff;
   scrollbar-width: thin;
+  transition: 0.3s ease;
 
   .title {
     display: block;
@@ -275,80 +247,6 @@ html {
     filter: grayscale(100%);
   }
 }
-
-.card {
-  width: 200px;
-  margin: 1%;
-  height: auto;
-  max-height: 450px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: 0.3s ease-in;
-}
-
-.card-max {
-  width: 90%;
-  height: 90vh;
-  margin: 5%;
-  overflow: auto;
-  scrollbar-color: #eee #fff;
-  scrollbar-width: thin;
-  max-height: 100vh;
-  background-color: rgba(255, 255, 255, 0.8);
-
-  .blurred-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    filter: blur(10px);
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-  }
-
-  .card-image {
-    flex-direction: column;
-    display: flex;
-
-    .card-header {
-      padding: 10px;
-      margin: 0;
-      .title {
-        margin: 0;
-        padding: 0;
-        margin-left: 10px;
-      }
-      .favButton {
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-      }
-      .disabledFavButton {
-        filter: grayscale(100%);
-      }
-    }
-
-    .card-main {
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-
-      figure,
-      .content {
-        width: 80%;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-      }
-
-      .content {
-        width: 100%;
-        padding: 3%;
-      }
-    }
-  }
-}
-
 .fav {
   background-color: rgba(250, 100, 50, 0.3);
 }

@@ -53,7 +53,6 @@ export default Vue.extend({
       required: true
     }
   },
-  computed: {},
   methods: {
     toggleFavorite(movieId: string) {
       this.$emit('toggle-favorite', movieId)
@@ -61,4 +60,14 @@ export default Vue.extend({
   }
 })
 </script>
-<style></style>
+<style lang="scss">
+.card {
+  width: 200px;
+  margin: 1%;
+  height: auto;
+  max-height: 450px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s ease-in;
+}
+</style>
