@@ -11,8 +11,8 @@
                   movieIdea.id.toString()
                 )
               }"
-              @click="toggleFavorite(movieIdea.id)"
               src="./../static/star.svg"
+              @click="toggleFavorite(movieIdea.id)"
             />
             <p class="title is-3">
               {{ movieIdea.title }} ({{ movieIdea.release_date.split('-')[0] }})

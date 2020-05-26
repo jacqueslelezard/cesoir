@@ -1,11 +1,11 @@
 <template>
   <div class="gallery">
     <div
-      class="card"
       v-for="movie in displayedMovies"
-      v-bind:key="movie.id"
-      @click="toggleFavorite(movie.id)"
+      :key="movie.id"
+      class="card"
       :class="{ fav: favoriteMovies.includes(movie.id.toString()) }"
+      @click="toggleFavorite(movie.id)"
     >
       <div class="card-image">
         <figure
@@ -29,8 +29,8 @@
                     movie.id.toString()
                   )
                 }"
-                @click="toggleFavorite(movie.id)"
                 src="./../static/star.svg"
+                @click="toggleFavorite(movie.id)"
               />{{ movie.title }}
             </p>
             <p class="subtitle is-6">{{ movie.release_date }}</p>

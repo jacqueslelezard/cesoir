@@ -1,6 +1,6 @@
 <template>
   <transition name="fade" mode="out-in">
-    <img class="logo" :key="toggleSpin" src="./../static/film-roll.svg" />
+    <img :key="toggleSpin" class="logo" src="./../static/film-roll.svg" />
   </transition>
 </template>
 <script lang="ts">

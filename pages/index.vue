@@ -28,10 +28,10 @@
           Tooous mes films
         </button>
         <input
+          v-model="search"
           class="input is-rounded search-box"
           type="text"
           placeholder="J'ajoute un film à ma liste à voir"
-          v-model="search"
         />
       </div>
     </div>
@@ -61,12 +61,12 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import axios from 'axios'
 import Logo from './../components/Logo.vue'
 import Gallery from './../components/Gallery.vue'
 import Idea from './../components/Idea.vue'
-import axios from 'axios'
 
-const api_key = '5a8f8a3c5c49b7b09151edb7e144ad4b'
+const api_key = process.env.TMDB_API_KEY
 const tmdb_base_url = 'https://api.themoviedb.org/3/'
 
 export default Vue.extend({
@@ -75,7 +75,7 @@ export default Vue.extend({
     Gallery,
     Idea
   },
-  data: function() {
+  data: () => {
     return {
       search: '' as string,
       movieIdea: {} as any,
@@ -86,11 +86,16 @@ export default Vue.extend({
       spin: false
     }
   },
+  computed: {},
+  watch: {
+    search() {
+      this.updateSearch()
+    }
+  },
   mounted() {
     const existingFav = localStorage.getItem('favoriteMovies')
     this.favoriteMovies = existingFav ? existingFav.split(',') : []
   },
-  computed: {},
   methods: {
     async updateSearch() {
       this.movieIdea = {}
@@ -162,11 +167,6 @@ export default Vue.extend({
     },
     getRandomInt(max: number) {
       return Math.floor(Math.random() * Math.floor(max))
-    }
-  },
-  watch: {
-    search: function() {
-      this.updateSearch()
     }
   }
 })
