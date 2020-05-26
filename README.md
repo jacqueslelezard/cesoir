@@ -1,6 +1,11 @@
 # cesoir
 
 > Mais que regarder comme film ce soir ?
+_Ce Soir_ is an app to help you keep track of your favorites movies and randomly suggest one when you don't know what to watch on the evening.
+
+## Prerequisite
+
+You first need to create an API key for [TMDB](https://www.themoviedb.org/documentation/api)
 
 ## Build Setup
 

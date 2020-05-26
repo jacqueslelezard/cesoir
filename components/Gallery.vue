@@ -33,7 +33,7 @@
                 @click="toggleFavorite(movie.id)"
               />{{ movie.title }}
             </p>
-            <p class="subtitle is-6">{{ movie.release_date }}</p>
+            <p class="subtitle is-6">{{ movie.release_date.split('-')[0] }}</p>
           </div>
         </div>
       </div>

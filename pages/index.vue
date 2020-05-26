@@ -10,7 +10,7 @@
       </h2>
       <div class="actions">
         <button
-          v-if="favoriteMovies.length > 0"
+          v-if="favoriteMovies.length"
           class="button is-primary is-rounded find-button"
           :class="{ 'is-outlined': showFavorites }"
           @click="selectRandomMovie()"
@@ -18,12 +18,12 @@
           Une idée, vite !
         </button>
         <button
-          v-if="favoriteMovies.length > 0"
+          v-if="favoriteMovies.length"
           class="button is-primary is-rounded find-button"
           :class="{
             'is-outlined': !showFavorites && showFavorites !== undefined
           }"
-          @click="listMovies()"
+          @click="listFavoriteMovies()"
         >
           Tooous mes films
         </button>
@@ -153,7 +153,7 @@ export default Vue.extend({
         })
       return movie
     },
-    async listMovies() {
+    async listFavoriteMovies() {
       this.showFavorites = true
       this.search = ''
       this.movieIdea = {}
